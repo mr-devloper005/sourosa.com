@@ -76,7 +76,7 @@ export default async function SearchPage({
       description={
         query
           ? `Results for "${query}"`
-          : "Browse the latest posts across every task."
+          : "Search the bookmark library first, then move through every other live route in the platform."
       }
       actions={
         <form action="/search" className="flex w-full gap-2 sm:w-auto">
@@ -99,16 +99,23 @@ export default async function SearchPage({
       }
     >
       {results.length ? (
-        <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
-          {results.map((post) => {
-            const task = getPostTaskKey(post);
-            const href = task ? buildPostUrl(task, post.slug) : `/posts/${post.slug}`;
-            return <TaskPostCard key={post.id} post={post} href={href} />;
-          })}
-        </div>
+        <>
+          <div className="mb-6 flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.22em] text-muted-foreground">
+            <span>{results.length} results</span>
+            <span className="h-1 w-1 rounded-full bg-current/40" />
+            <span>All routes stay accessible here</span>
+          </div>
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {results.map((post) => {
+              const task = getPostTaskKey(post);
+              const href = task ? buildPostUrl(task, post.slug) : `/posts/${post.slug}`;
+              return <TaskPostCard key={post.id} post={post} href={href} taskKey={task || undefined} />;
+            })}
+          </div>
+        </>
       ) : (
-        <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
-          No matching posts yet.
+        <div className="paper-panel rounded-[2rem] border border-dashed p-10 text-center text-muted-foreground">
+          No matching posts yet. Try a broader keyword, tag, or route name.
         </div>
       )}
     </PageShell>
