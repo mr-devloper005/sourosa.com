@@ -16,6 +16,12 @@ type Props = {
 
 export function TaskListClient({ task, initialPosts, category }: Props) {
   const localPosts = getLocalPostsForTask(task);
+  const gridClass =
+    task === 'sbm'
+      ? 'grid gap-6 lg:grid-cols-[1.08fr_0.92fr] xl:grid-cols-2'
+      : task === 'profile'
+        ? 'grid gap-6 sm:grid-cols-2 xl:grid-cols-3'
+        : 'grid gap-6 sm:grid-cols-2 lg:grid-cols-4'
 
   const merged = useMemo(() => {
     const bySlug = new Set<string>();
@@ -54,14 +60,14 @@ export function TaskListClient({ task, initialPosts, category }: Props) {
 
   if (!merged.length) {
     return (
-      <div className="rounded-2xl border border-dashed border-border p-10 text-center text-muted-foreground">
+      <div className="paper-panel rounded-[2rem] border border-dashed p-10 text-center text-muted-foreground">
         No posts yet for this section.
       </div>
     );
   }
 
   return (
-    <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-4">
+    <div className={gridClass}>
       {merged.map((post) => {
         const localOnly = (post as any).localOnly;
         const href = localOnly

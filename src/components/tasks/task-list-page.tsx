@@ -31,12 +31,12 @@ const variantShells = {
   'article-journal': 'bg-[linear-gradient(180deg,#fffdf9_0%,#f7f1ea_100%)]',
   'image-masonry': 'bg-[linear-gradient(180deg,#09101d_0%,#111c2f_100%)] text-white',
   'image-portfolio': 'bg-[linear-gradient(180deg,#07111f_0%,#13203a_100%)] text-white',
-  'profile-creator': 'bg-[linear-gradient(180deg,#0a1120_0%,#101c34_100%)] text-white',
+  'profile-creator': 'bg-[linear-gradient(180deg,#fcf7f1_0%,#f4ebe1_38%,#ffffff_100%)]',
   'profile-business': 'bg-[linear-gradient(180deg,#f6fbff_0%,#ffffff_100%)]',
   'classified-bulletin': 'bg-[linear-gradient(180deg,#edf3e4_0%,#ffffff_100%)]',
   'classified-market': 'bg-[linear-gradient(180deg,#f4f6ef_0%,#ffffff_100%)]',
   'sbm-curation': 'bg-[linear-gradient(180deg,#fff7ee_0%,#ffffff_100%)]',
-  'sbm-library': 'bg-[linear-gradient(180deg,#f7f8fc_0%,#ffffff_100%)]',
+  'sbm-library': 'bg-[linear-gradient(180deg,#fcf7f1_0%,#f4ebe1_38%,#ffffff_100%)]',
 } as const
 
 export async function TaskListPage({ task, category }: { task: TaskKey; category?: string }) {
@@ -60,7 +60,8 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
   const shellClass = variantShells[layoutKey as keyof typeof variantShells] || 'bg-background'
   const Icon = taskIcons[task] || LayoutGrid
 
-  const isDark = ['image-masonry', 'image-portfolio', 'profile-creator'].includes(layoutKey)
+  const isDark = ['image-masonry', 'image-portfolio'].includes(layoutKey)
+  const isProfileLayout = layoutKey === 'profile-creator' || layoutKey === 'profile-business'
   const ui = isDark
     ? {
         muted: 'text-slate-300',
@@ -69,10 +70,10 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         input: 'border-white/10 bg-white/6 text-white',
         button: 'bg-white text-slate-950 hover:bg-slate-200',
       }
-    : layoutKey.startsWith('article') || layoutKey.startsWith('sbm')
+    : layoutKey.startsWith('article') || layoutKey.startsWith('sbm') || isProfileLayout
       ? {
           muted: 'text-[#72594a]',
-          panel: 'border border-[#dbc6b6] bg-white/90',
+          panel: 'border border-[#dbc6b6] bg-white/90 shadow-[0_20px_60px_rgba(88,56,39,0.08)]',
           soft: 'border border-[#dbc6b6] bg-[#fff8ef]',
           input: 'border border-[#dbc6b6] bg-white text-[#2f1d16]',
           button: 'bg-[#2f1d16] text-[#fff4e4] hover:bg-[#452920]',
@@ -187,13 +188,37 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
         ) : null}
 
         {layoutKey === 'profile-creator' || layoutKey === 'profile-business' ? (
-          <section className={`mb-12 rounded-[2.2rem] p-8 shadow-[0_24px_70px_rgba(15,23,42,0.1)] ${ui.panel}`}>
+          <section className={`mb-12 overflow-hidden rounded-[2.2rem] p-8 shadow-[0_24px_70px_rgba(15,23,42,0.1)] ${ui.panel}`}>
             <div className="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-center">
-              <div className={`min-h-[240px] rounded-[2rem] ${ui.soft}`} />
+              <div className="grid gap-3">
+                <div className="paper-panel archive-grid min-h-[210px] rounded-[2rem] p-6">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#8b6c5b]">Identity dossier</p>
+                  <div className="mt-8 grid gap-3 sm:grid-cols-2">
+                    <div className="rounded-[1.2rem] border border-[rgba(122,95,78,0.12)] bg-white/72 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b6c5b]">Signal</p>
+                      <p className="mt-2 text-sm font-semibold text-[#261811]">Public presence</p>
+                    </div>
+                    <div className="rounded-[1.2rem] border border-[rgba(122,95,78,0.12)] bg-white/72 p-4">
+                      <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b6c5b]">Role</p>
+                      <p className="mt-2 text-sm font-semibold text-[#261811]">Curator or brand</p>
+                    </div>
+                  </div>
+                </div>
+                <div className="grid gap-3 sm:grid-cols-2">
+                  <div className={`rounded-[1.4rem] p-4 ${ui.soft}`}>
+                    <p className={`text-[10px] uppercase tracking-[0.24em] ${ui.muted}`}>Identity</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">Portrait-led presentation</p>
+                  </div>
+                  <div className={`rounded-[1.4rem] p-4 ${ui.soft}`}>
+                    <p className={`text-[10px] uppercase tracking-[0.24em] ${ui.muted}`}>Signal</p>
+                    <p className="mt-2 text-sm font-semibold text-foreground">Reputation and authorship cues</p>
+                  </div>
+                </div>
+              </div>
               <div>
                 <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Profiles with stronger identity, trust, and reputation cues.</h1>
-                <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This layout prioritizes the person or business surface first, then lets the feed continue below without borrowing the same visual logic used by articles or listings.</p>
+                <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Profiles framed like living identity dossiers instead of generic directory tiles.</h1>
+                <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>This route uses a warmer editorial palette, tighter metadata, and more authored supporting blocks so it stays consistent with the rest of the site while still feeling identity-led.</p>
               </div>
             </div>
           </section>
@@ -219,10 +244,17 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
           <section className="mb-12 grid gap-6 lg:grid-cols-[1.15fr_0.85fr] lg:items-start">
             <div>
               <p className={`text-xs uppercase tracking-[0.3em] ${ui.muted}`}>{taskConfig?.label || task}</p>
-              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Curated resources arranged more like collections than a generic post feed.</h1>
-              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>Bookmarks, saved resources, and reference-style items need calmer grouping and lighter metadata. This variant gives them that separation.</p>
+              <h1 className="mt-3 text-4xl font-semibold tracking-[-0.05em] text-foreground">Curated resources arranged like shelves, notes, and saved reference cards.</h1>
+              <p className={`mt-5 max-w-2xl text-sm leading-8 ${ui.muted}`}>Bookmarks, saved resources, and research links need calmer grouping and lighter metadata. This surface gives them hierarchy without turning them into a repeated feed.</p>
+              <div className="mt-6 grid gap-3 sm:grid-cols-3">
+                {['Reference-led', 'Return-friendly', 'Profile-backed'].map((item) => (
+                  <div key={item} className={`rounded-[1.4rem] p-4 ${ui.soft}`}>
+                    <p className="text-sm font-semibold text-foreground">{item}</p>
+                  </div>
+                ))}
+              </div>
             </div>
-            <div className={`rounded-[2rem] p-6 ${ui.panel}`}>
+            <div className={`archive-grid rounded-[2rem] p-6 ${ui.panel}`}>
               <p className={`text-xs uppercase tracking-[0.24em] ${ui.muted}`}>Collection filter</p>
               <form className="mt-4 flex items-center gap-3" action={taskConfig?.route || '#'}>
                 <select name="category" defaultValue={normalizedCategory} className={`h-11 flex-1 rounded-xl px-3 text-sm ${ui.input}`}>
@@ -233,6 +265,17 @@ export async function TaskListPage({ task, category }: { task: TaskKey; category
                 </select>
                 <button type="submit" className={`h-11 rounded-xl px-4 text-sm font-medium ${ui.button}`}>Apply</button>
               </form>
+              <p className={`mt-4 text-sm leading-7 ${ui.muted}`}>Other tasks still remain URL-accessible, but discovery here stays focused on bookmarks first.</p>
+              <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                <div className="rounded-[1.3rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b6c5b]">Primary lane</p>
+                  <p className="mt-2 text-sm font-semibold text-[#261811]">Saved links and collections</p>
+                </div>
+                <div className="rounded-[1.3rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-4">
+                  <p className="text-[10px] uppercase tracking-[0.22em] text-[#8b6c5b]">Secondary lane</p>
+                  <p className="mt-2 text-sm font-semibold text-[#261811]">Identity-rich profile pages</p>
+                </div>
+              </div>
             </div>
           </section>
         ) : null}

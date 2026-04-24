@@ -30,6 +30,7 @@ const footerLinks = {
     { name: 'Careers', href: '/careers' },
     { name: 'Blog', href: '/blog' },
     { name: 'Press', href: '/press' },
+    { name: 'Contact', href: '/contact' },
   ],
   resources: [
     { name: 'Help Center', href: '/help' },
@@ -59,6 +60,80 @@ export function Footer() {
   const { recipe } = getFactoryState()
   const enabledTasks = SITE_CONFIG.tasks.filter((task) => task.enabled)
   const primaryTask = enabledTasks.find((task) => task.key === recipe.primaryTask) || enabledTasks[0]
+  const secondaryTask = enabledTasks.find((task) => task.key !== primaryTask?.key)
+
+  if (recipe.primaryTask === 'sbm' && primaryTask) {
+    return (
+      <footer className="border-t border-[rgba(112,84,66,0.12)] bg-[linear-gradient(180deg,rgba(247,240,231,0.88)_0%,rgba(243,235,225,1)_100%)] text-[#2b1d16]">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8">
+          <div className="grid gap-8 lg:grid-cols-[1.15fr_0.85fr_0.85fr]">
+            <div className="rounded-[2rem] border border-[rgba(112,84,66,0.12)] bg-[rgba(255,251,246,0.82)] p-7 shadow-[0_24px_70px_rgba(88,56,39,0.08)]">
+              <div className="flex items-center gap-3">
+                <div className="flex h-12 w-12 items-center justify-center rounded-[1.4rem] border border-[rgba(112,84,66,0.12)] bg-white/90 p-1.5">
+                  <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
+                </div>
+                <div>
+                  <p className="text-lg font-semibold">{SITE_CONFIG.name}</p>
+                  <p className="text-xs uppercase tracking-[0.24em] text-[#7c6456]">{siteContent.footer.tagline}</p>
+                </div>
+              </div>
+              <p className="mt-5 max-w-md text-sm leading-7 text-[#6f5749]">{SITE_CONFIG.description}</p>
+              <div className="mt-6 flex flex-wrap gap-3">
+                <Link href={primaryTask.route} className="rounded-full bg-[#3f271d] px-4 py-2.5 text-sm font-semibold text-[#fff7ef] hover:bg-[#56362a]">
+                  Explore {primaryTask.label}
+                </Link>
+                {secondaryTask ? (
+                  <Link href={secondaryTask.route} className="rounded-full border border-[rgba(112,84,66,0.12)] bg-white/85 px-4 py-2.5 text-sm font-semibold text-[#2b1d16] hover:bg-white">
+                    Visit {secondaryTask.label}
+                  </Link>
+                ) : null}
+              </div>
+            </div>
+
+            <div>
+              <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a6c5a]">Primary surfaces</h3>
+              <ul className="mt-4 space-y-3 text-sm text-[#6f5749]">
+                {enabledTasks.map((item) => (
+                  <li key={item.key}>
+                    <Link href={item.route} className="hover:text-[#2b1d16]">{item.label}</Link>
+                  </li>
+                ))}
+                <li>
+                  <Link href="/search" className="hover:text-[#2b1d16]">Search all routes</Link>
+                </li>
+              </ul>
+            </div>
+
+            <div className="grid gap-8 sm:grid-cols-2 lg:grid-cols-1">
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a6c5a]">Company</h3>
+                <ul className="mt-4 space-y-3 text-sm text-[#6f5749]">
+                  {footerLinks.company.slice(0, 4).map((item) => (
+                    <li key={item.name}>
+                      <Link href={item.href} className="hover:text-[#2b1d16]">{item.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+              <div>
+                <h3 className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8a6c5a]">Legal</h3>
+                <ul className="mt-4 space-y-3 text-sm text-[#6f5749]">
+                  {footerLinks.legal.map((item) => (
+                    <li key={item.name}>
+                      <Link href={item.href} className="hover:text-[#2b1d16]">{item.name}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
+          </div>
+          <div className="mt-10 border-t border-[rgba(112,84,66,0.12)] pt-5 text-sm text-[#8a6c5a]">
+            &copy; {new Date().getFullYear()} {SITE_CONFIG.name}. Bookmark library first, full platform still live underneath.
+          </div>
+        </div>
+      </footer>
+    )
+  }
 
   if (recipe.footer === 'minimal-footer') {
     return (

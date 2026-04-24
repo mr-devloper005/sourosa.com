@@ -4,7 +4,7 @@ import { useMemo, useState } from 'react'
 import dynamic from 'next/dynamic'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { Search, Menu, X, User, FileText, Building2, LayoutGrid, Tag, Image as ImageIcon, ChevronRight, Sparkles, MapPin, Plus } from 'lucide-react'
+import { Search, Menu, X, User, FileText, Building2, LayoutGrid, Tag, Image as ImageIcon, ChevronRight, Sparkles, MapPin, Plus, Bookmark } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { useAuth } from '@/lib/auth-context'
 import { SITE_CONFIG, type TaskKey } from '@/lib/site-config'
@@ -21,7 +21,7 @@ const NavbarAuthControls = dynamic(() => import('@/components/shared/navbar-auth
 const taskIcons: Record<TaskKey, any> = {
   article: FileText,
   listing: Building2,
-  sbm: LayoutGrid,
+  sbm: Bookmark,
   classified: Tag,
   image: ImageIcon,
   profile: User,
@@ -106,6 +106,167 @@ export function Navbar() {
   }))
   const primaryTask = SITE_CONFIG.tasks.find((task) => task.key === recipe.primaryTask && task.enabled) || primaryNavigation[0]
   const isDirectoryProduct = recipe.homeLayout === 'listing-home' || recipe.homeLayout === 'classified-home'
+  const secondaryTask = navigation.find((task) => task.key !== primaryTask?.key) || navigation[1]
+  const lowEmphasisRoutes = SITE_CONFIG.tasks.filter((task) => !task.enabled).slice(0, 4)
+  const utilityPages = [
+    { label: 'About', href: '/about' },
+    { label: 'Contact', href: '/contact' },
+  ]
+
+  if (recipe.primaryTask === 'sbm' && primaryTask) {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-[rgba(112,84,66,0.12)] bg-[rgba(250,245,238,0.84)] text-[#2b1d16] backdrop-blur-2xl">
+        <nav className="mx-auto flex h-[5.5rem] max-w-7xl items-center justify-between gap-4 px-4 sm:px-6 lg:px-8">
+          <div className="flex min-w-0 items-center gap-4 lg:gap-6">
+            <Link href="/" className="flex shrink-0 items-center gap-3">
+              <div className="flex h-12 w-12 items-center justify-center overflow-hidden rounded-[1.4rem] border border-[rgba(112,84,66,0.12)] bg-white/90 p-1.5 shadow-[0_16px_40px_rgba(88,56,39,0.1)]">
+                <img src="/favicon.png?v=20260401" alt={`${SITE_CONFIG.name} logo`} width="48" height="48" className="h-full w-full object-contain" />
+              </div>
+              <div className="min-w-0">
+                <span className="block truncate text-lg font-semibold sm:text-xl">{SITE_CONFIG.name}</span>
+                <span className="hidden text-[10px] uppercase tracking-[0.28em] text-[#7c6456] sm:block">{siteContent.navbar.tagline}</span>
+              </div>
+            </Link>
+
+            <div className="hidden items-center gap-2 xl:flex">
+              {[secondaryTask].filter(Boolean).map((task, index) => {
+                if (!task) return null
+                const Icon = taskIcons[task.key] || LayoutGrid
+                const isActive = pathname.startsWith(task.route)
+                return (
+                  <Link
+                    key={task.key}
+                    href={task.route}
+                    className={cn(
+                      'inline-flex items-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold transition-all',
+                      isActive
+                        ? 'bg-[#3f271d] text-[#fff7ef] shadow-[0_14px_30px_rgba(63,39,29,0.18)]'
+                        : index === 0
+                          ? 'bg-white/88 text-[#3f271d] shadow-[0_10px_24px_rgba(88,56,39,0.08)] hover:bg-white'
+                          : 'border border-[rgba(112,84,66,0.12)] bg-[rgba(255,252,247,0.72)] text-[#6f5749] hover:bg-white/90 hover:text-[#2b1d16]',
+                    )}
+                  >
+                    <Icon className="h-4 w-4" />
+                    {task.label}
+                  </Link>
+                )
+              })}
+              {utilityPages.map((page) => {
+                const isActive = pathname === page.href || pathname.startsWith(`${page.href}/`)
+                return (
+                  <Link
+                    key={page.href}
+                    href={page.href}
+                    className={cn(
+                      'inline-flex items-center rounded-full border border-[rgba(112,84,66,0.12)] bg-[rgba(255,252,247,0.72)] px-4 py-2.5 text-sm font-semibold transition-all',
+                      isActive
+                        ? 'bg-[#3f271d] text-[#fff7ef] shadow-[0_14px_30px_rgba(63,39,29,0.18)]'
+                        : 'text-[#6f5749] hover:bg-white/90 hover:text-[#2b1d16]',
+                    )}
+                  >
+                    {page.label}
+                  </Link>
+                )
+              })}
+            </div>
+          </div>
+
+          <div className="hidden min-w-0 flex-1 lg:block" />
+
+          <div className="flex shrink-0 items-center gap-2 sm:gap-3">
+            <div className="hidden items-center gap-2 md:flex">
+              <Button
+                variant="ghost"
+                size="icon"
+                asChild
+                className="rounded-full border border-[rgba(112,84,66,0.12)] bg-white/78 text-[#6f5749] hover:bg-white/90 hover:text-[#2b1d16]"
+              >
+                <Link href="/search">
+                  <Search className="h-4 w-4" />
+                  <span className="sr-only">Search</span>
+                </Link>
+              </Button>
+              {lowEmphasisRoutes.length ? (
+                <Link href="/search" className="rounded-full border border-[rgba(112,84,66,0.12)] px-3 py-2 text-xs font-semibold uppercase tracking-[0.16em] text-[#7c6456] hover:bg-white/80 hover:text-[#2b1d16]">
+                  Explore all routes
+                </Link>
+              ) : null}
+            </div>
+
+            {isAuthenticated ? (
+              <NavbarAuthControls />
+            ) : (
+              <div className="hidden items-center gap-2 md:flex">
+                <Button variant="ghost" size="sm" asChild className="px-4 text-[#6f5749] hover:bg-white/70 hover:text-[#2b1d16]">
+                  <Link href="/login">Sign In</Link>
+                </Button>
+              </div>
+            )}
+
+            <Button variant="ghost" size="icon" className="rounded-full lg:hidden" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+              {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            </Button>
+          </div>
+        </nav>
+
+        {isMobileMenuOpen ? (
+          <div className="border-t border-[rgba(112,84,66,0.12)] bg-[rgba(250,245,238,0.96)]">
+            <div className="space-y-2 px-4 py-4">
+              <Link href="/search" onClick={() => setIsMobileMenuOpen(false)} className="mb-3 flex items-center gap-3 rounded-[1.35rem] border border-[rgba(112,84,66,0.12)] bg-white/82 px-4 py-3 text-sm font-medium text-[#6f5749]">
+                <Search className="h-4 w-4" />
+                Search the full site
+              </Link>
+              {mobileNavigation.filter((item) => item.href === secondaryTask?.route).map((item) => {
+                const isActive = pathname.startsWith(item.href)
+                return (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      'flex items-center gap-3 rounded-[1.35rem] px-4 py-3 text-sm font-semibold transition-colors',
+                      isActive ? 'bg-[#3f271d] text-[#fff7ef]' : 'border border-[rgba(112,84,66,0.12)] bg-white/84 text-[#2b1d16]',
+                    )}
+                  >
+                    <item.icon className="h-5 w-5" />
+                    {item.name}
+                  </Link>
+                )
+              })}
+              {utilityPages.map((page) => {
+                const isActive = pathname === page.href || pathname.startsWith(`${page.href}/`)
+                return (
+                  <Link
+                    key={page.href}
+                    href={page.href}
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className={cn(
+                      'flex items-center rounded-[1.35rem] px-4 py-3 text-sm font-semibold transition-colors',
+                      isActive
+                        ? 'bg-[#3f271d] text-[#fff7ef]'
+                        : 'border border-[rgba(112,84,66,0.12)] bg-white/84 text-[#2b1d16]',
+                    )}
+                  >
+                    {page.label}
+                  </Link>
+                )
+              })}
+              {lowEmphasisRoutes.length ? (
+                <Link
+                  href="/search"
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="flex items-center justify-between rounded-[1.35rem] border border-dashed border-[rgba(112,84,66,0.22)] px-4 py-3 text-sm text-[#7c6456]"
+                >
+                  All other task routes stay available
+                  <ChevronRight className="h-4 w-4" />
+                </Link>
+              ) : null}
+            </div>
+          </div>
+        ) : null}
+      </header>
+    )
+  }
 
   if (isDirectoryProduct) {
     const palette = directoryPalette[(recipe.brandPack === 'market-utility' ? 'market-utility' : 'directory-clean') as keyof typeof directoryPalette]
