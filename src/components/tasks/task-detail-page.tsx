@@ -247,6 +247,259 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
     );
   }
 
+  if (isBookmark) {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavbarShell />
+        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SchemaJsonLd data={schemaPayload} />
+          <Link
+            href={taskConfig?.route || "/"}
+            className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Back to {taskConfig?.label || "posts"}
+          </Link>
+
+          <section className="overflow-hidden rounded-[2rem] border border-[rgba(122,95,78,0.12)] bg-[linear-gradient(180deg,rgba(255,251,246,0.94)_0%,rgba(246,238,228,0.9)_100%)] p-6 shadow-[0_22px_72px_rgba(88,56,39,0.09)] sm:p-8">
+            <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr]">
+              <div>
+                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
+                  <Badge variant="secondary" className="inline-flex items-center gap-1">
+                    <Tag className="h-3.5 w-3.5" />
+                    {category}
+                  </Badge>
+                  {location ? (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      {location}
+                    </span>
+                  ) : null}
+                </div>
+                <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-foreground sm:text-5xl">
+                  {post.title}
+                </h1>
+                <RichContent html={descriptionHtml} className="mt-5 max-w-3xl text-base leading-8" />
+
+                {postTags.length ? (
+                  <div className="mt-6 flex flex-wrap gap-2">
+                    {postTags.map((tag) => (
+                      <Badge key={tag} variant="outline">
+                        {tag}
+                      </Badge>
+                    ))}
+                  </div>
+                ) : null}
+              </div>
+
+              <aside className="grid gap-4">
+                <div className="rounded-[1.6rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Collection note</p>
+                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
+                    This bookmark surface stays intentionally lighter and more editorial than listing or article detail pages.
+                  </p>
+                </div>
+                <div className="rounded-[1.6rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-5">
+                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Quick actions</p>
+                  <div className="mt-4 flex flex-wrap gap-3">
+                    {content.website ? (
+                      <Button asChild>
+                        <a href={content.website} target="_blank" rel="noreferrer">
+                          Visit link
+                        </a>
+                      </Button>
+                    ) : null}
+                    <Button variant="outline" asChild>
+                      <Link href={`/search?q=${encodeURIComponent(post.title)}`}>Find related</Link>
+                    </Button>
+                  </div>
+                </div>
+                {(content.website || content.email || location) ? (
+                  <div className="rounded-[1.6rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-5">
+                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Reference details</p>
+                    <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                      {content.website ? (
+                        <div className="flex items-start gap-2">
+                          <Globe className="mt-0.5 h-4 w-4" />
+                          <a href={content.website} className="break-all text-foreground hover:underline" target="_blank" rel="noreferrer">
+                            {content.website}
+                          </a>
+                        </div>
+                      ) : null}
+                      {content.email ? (
+                        <div className="flex items-start gap-2">
+                          <Mail className="mt-0.5 h-4 w-4" />
+                          <a href={`mailto:${content.email}`} className="break-all text-foreground hover:underline">
+                            {content.email}
+                          </a>
+                        </div>
+                      ) : null}
+                      {location ? (
+                        <div className="flex items-start gap-2">
+                          <MapPin className="mt-0.5 h-4 w-4" />
+                          <span>{location}</span>
+                        </div>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+              </aside>
+            </div>
+          </section>
+
+          {related.length ? (
+            <section className="mt-12">
+              <div className="mb-4 flex items-center justify-between">
+                <h2 className="text-xl font-semibold text-foreground">More in {category}</h2>
+                {taskConfig?.route ? (
+                  <Link href={taskConfig.route} className="text-sm text-muted-foreground hover:text-foreground">
+                    View all
+                  </Link>
+                ) : null}
+              </div>
+              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+                {related.map((item) => (
+                  <TaskPostCard key={item.id} post={item} href={buildPostUrl(task, item.slug)} taskKey={task} />
+                ))}
+              </div>
+            </section>
+          ) : null}
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
+  if (task === "profile") {
+    return (
+      <div className="min-h-screen bg-background">
+        <NavbarShell />
+        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+          <SchemaJsonLd data={schemaPayload} />
+          <Link
+            href={taskConfig?.route || "/"}
+            className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+          >
+            ← Back to {taskConfig?.label || "posts"}
+          </Link>
+
+          <section className="overflow-hidden rounded-[2.2rem] border border-[rgba(122,95,78,0.12)] bg-[linear-gradient(180deg,rgba(255,251,246,0.96)_0%,rgba(247,240,231,0.94)_100%)] shadow-[0_28px_90px_rgba(88,56,39,0.12)]">
+            <div className="grid gap-8 p-6 sm:p-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-end">
+              <div className="relative min-h-[280px] overflow-hidden rounded-[1.8rem] border border-[rgba(122,95,78,0.12)] bg-white/70">
+                <ContentImage
+                  src={images[0]}
+                  alt={`${post.title} profile image`}
+                  fill
+                  className="object-cover"
+                  intrinsicWidth={1200}
+                  intrinsicHeight={960}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-[#3f271d]/35 via-transparent to-transparent" />
+              </div>
+              <div className="pb-2 text-[#261811]">
+                <div className="flex flex-wrap items-center gap-3 text-sm text-[#71574a]">
+                  <Badge className="bg-[#f3e8db] text-[#261811]">{category}</Badge>
+                  {location ? (
+                    <span className="inline-flex items-center gap-1">
+                      <MapPin className="h-4 w-4" />
+                      {location}
+                    </span>
+                  ) : null}
+                </div>
+                <h1 className="mt-5 text-4xl font-semibold tracking-[-0.05em] sm:text-5xl">{post.title}</h1>
+                <p className="mt-5 max-w-3xl text-base leading-8 text-[#71574a]">
+                  {description}
+                </p>
+                <div className="mt-6 flex flex-wrap gap-3">
+                  {content.website ? (
+                    <Button className="bg-[#5b2b3b] text-[#fff0f5] hover:bg-[#74364b]" asChild>
+                      <a href={content.website} target="_blank" rel="noreferrer">Visit website</a>
+                    </Button>
+                  ) : null}
+                  <Button variant="outline" className="border-[rgba(122,95,78,0.14)] bg-white/72 text-[#261811] hover:bg-[#fff8ef]" asChild>
+                    <Link href="/search">Search related routes</Link>
+                  </Button>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          <section className="mt-10 grid gap-6 lg:grid-cols-[0.95fr_1.05fr]">
+            <div className="grid gap-6">
+              <div className="rounded-[1.8rem] border border-border bg-card/85 p-6">
+                <h2 className="text-lg font-semibold text-foreground">Profile details</h2>
+                <div className="mt-4 space-y-3 text-sm text-muted-foreground">
+                  {content.website ? (
+                    <div className="flex items-start gap-2">
+                      <Globe className="mt-0.5 h-4 w-4" />
+                      <a href={content.website} className="break-all text-foreground hover:underline" target="_blank" rel="noreferrer">
+                        {content.website}
+                      </a>
+                    </div>
+                  ) : null}
+                  {content.phone ? (
+                    <div className="flex items-start gap-2">
+                      <Phone className="mt-0.5 h-4 w-4" />
+                      <span>{content.phone}</span>
+                    </div>
+                  ) : null}
+                  {content.email ? (
+                    <div className="flex items-start gap-2">
+                      <Mail className="mt-0.5 h-4 w-4" />
+                      <a href={`mailto:${content.email}`} className="break-all text-foreground hover:underline">
+                        {content.email}
+                      </a>
+                    </div>
+                  ) : null}
+                  {location ? (
+                    <div className="flex items-start gap-2">
+                      <MapPin className="mt-0.5 h-4 w-4" />
+                      <span>{location}</span>
+                    </div>
+                  ) : null}
+                </div>
+              </div>
+              {content.highlights?.length ? (
+                <div className="rounded-[1.8rem] border border-border bg-card/85 p-6">
+                  <h2 className="text-lg font-semibold text-foreground">Highlights</h2>
+                  <ul className="mt-4 space-y-2 text-sm text-muted-foreground">
+                    {content.highlights.map((item) => (
+                      <li key={item}>• {item}</li>
+                    ))}
+                  </ul>
+                </div>
+              ) : null}
+            </div>
+
+            <div className="grid gap-6">
+              <div className="rounded-[1.8rem] border border-border bg-card/85 p-6">
+                <h2 className="text-lg font-semibold text-foreground">About this profile</h2>
+                <RichContent html={descriptionHtml} className="mt-4 max-w-none" />
+              </div>
+              {related.length ? (
+                <div className="rounded-[1.8rem] border border-border bg-card/85 p-6">
+                  <div className="mb-4 flex items-center justify-between">
+                    <h2 className="text-lg font-semibold text-foreground">Related profiles</h2>
+                    {taskConfig?.route ? (
+                      <Link href={taskConfig.route} className="text-sm text-muted-foreground hover:text-foreground">
+                        View all
+                      </Link>
+                    ) : null}
+                  </div>
+                  <div className="grid gap-4 md:grid-cols-2">
+                    {related.map((item) => (
+                      <TaskPostCard key={item.id} post={item} href={buildPostUrl(task, item.slug)} taskKey={task} compact />
+                    ))}
+                  </div>
+                </div>
+              ) : null}
+            </div>
+          </section>
+        </main>
+        <Footer />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <NavbarShell />

@@ -411,58 +411,134 @@ function VisualHome({ primaryTask, imagePosts, profilePosts, articlePosts }: { p
 
 function CurationHome({ primaryTask, bookmarkPosts, profilePosts, articlePosts }: { primaryTask?: EnabledTask; bookmarkPosts: SitePost[]; profilePosts: SitePost[]; articlePosts: SitePost[] }) {
   const tone = getCurationTone()
-  const collections = bookmarkPosts.length ? bookmarkPosts.slice(0, 4) : articlePosts.slice(0, 4)
+  const collections = bookmarkPosts.length ? bookmarkPosts.slice(0, 5) : articlePosts.slice(0, 5)
+  const leadCollection = collections[0]
+  const shelfCollections = collections.slice(1, 5)
   const people = profilePosts.slice(0, 3)
 
   return (
     <main className={tone.shell}>
-      <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
-        <div className="grid gap-8 lg:grid-cols-[1fr_1fr] lg:items-start">
-          <div>
-            <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
-              <Bookmark className="h-3.5 w-3.5" />
-              Curated collections
-            </span>
-            <h1 className={`mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${tone.title}`}>
-              Save, organize, and revisit resources through shelves, boards, and curated collections.
-            </h1>
-            <p className={`mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>{SITE_CONFIG.description}</p>
-            <div className="mt-8 flex flex-wrap gap-3">
-              <Link href={primaryTask?.route || '/sbm'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
-                Open collections
-                <ArrowRight className="h-4 w-4" />
-              </Link>
-              <Link href="/profile" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
-                Explore curators
-              </Link>
+      <section className="relative overflow-hidden">
+        <div className="soft-orb left-[-4rem] top-20 h-52 w-52 bg-[rgba(168,197,177,0.32)]" />
+        <div className="soft-orb right-[-2rem] top-12 h-56 w-56 bg-[rgba(189,154,132,0.24)]" />
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:px-8 lg:py-18">
+          <div className="grid gap-8 lg:grid-cols-[1.05fr_0.95fr] lg:items-start">
+            <div>
+              <span className={`inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-semibold uppercase tracking-[0.24em] ${tone.badge}`}>
+                <Bookmark className="h-3.5 w-3.5" />
+                Bookmark-first product
+              </span>
+              <h1 className={`mt-6 max-w-4xl text-5xl font-semibold tracking-[-0.06em] sm:text-6xl ${tone.title}`}>
+                Reference shelves up front, social profiles close behind.
+              </h1>
+              <p className={`mt-6 max-w-2xl text-base leading-8 ${tone.muted}`}>{SITE_CONFIG.description}</p>
+
+              <div className="mt-8 flex flex-wrap gap-3">
+                <Link href={primaryTask?.route || '/sbm'} className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.action}`}>
+                  Open bookmark library
+                  <ArrowRight className="h-4 w-4" />
+                </Link>
+                <Link href="/profile" className={`inline-flex items-center gap-2 rounded-full px-5 py-3 text-sm font-semibold ${tone.actionAlt}`}>
+                  Explore profiles
+                </Link>
+              </div>
+
+              <div className="mt-8 grid gap-3 sm:grid-cols-3">
+                {[
+                  ['Primary task', primaryTask?.label || 'Bookmark Library'],
+                  ['Secondary task', 'Social Profiles'],
+                  ['Discovery mode', 'Text-led shelves and light notes'],
+                ].map(([label, value]) => (
+                  <div key={label} className={`rounded-[1.5rem] p-4 ${tone.soft}`}>
+                    <p className="text-[10px] font-semibold uppercase tracking-[0.24em] opacity-65">{label}</p>
+                    <p className="mt-2 text-sm font-semibold leading-6">{value}</p>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            <div className={`shelf-panel rounded-[2rem] p-5`}>
+              <div className="grid gap-4 md:grid-cols-[1.2fr_0.8fr]">
+                <div className="rounded-[1.7rem] border border-[rgba(122,95,78,0.1)] bg-[rgba(255,255,255,0.64)] p-5">
+                  <p className="text-[11px] font-semibold uppercase tracking-[0.24em] text-[#7d6152]">Lead shelf</p>
+                  <h2 className="mt-3 text-3xl font-semibold tracking-[-0.05em] text-[#261811]">
+                    {leadCollection?.title || 'Curated references with room for context'}
+                  </h2>
+                  <p className="mt-4 text-sm leading-7 text-[#71574a]">
+                    {leadCollection?.summary || 'Bookmarks and references are framed like saved cards on a desk, not loud promo tiles.'}
+                  </p>
+                  <Link href={leadCollection ? getTaskHref(resolveTaskKey(leadCollection.task, 'sbm'), leadCollection.slug) : '/sbm'} className="mt-6 inline-flex items-center gap-2 text-sm font-semibold text-[#5b2b3b] hover:opacity-80">
+                    Read this collection
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </div>
+                <div className="grid gap-3">
+                  {['Signals', 'Profiles', 'Quiet routes'].map((label, index) => (
+                    <div key={label} className="rounded-[1.4rem] border border-[rgba(122,95,78,0.1)] bg-[rgba(255,255,255,0.58)] p-4">
+                      <p className="text-[10px] font-semibold uppercase tracking-[0.24em] text-[#8b6c5b]">{label}</p>
+                      <p className="mt-2 text-sm leading-6 text-[#4c372d]">
+                        {index === 0 && 'Less noise, more annotation, and clearer return paths.'}
+                        {index === 1 && 'Profile surfaces validate who saved or published a resource.'}
+                        {index === 2 && 'Other task URLs stay live through search, direct links, and lower-emphasis entry points.'}
+                      </p>
+                    </div>
+                  ))}
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+      </section>
 
-          <div className="grid gap-4 md:grid-cols-2">
-            {collections.map((post) => (
-              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${tone.panel}`}>
-                <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Collection</p>
-                <h3 className="mt-3 text-2xl font-semibold">{post.title}</h3>
-                <p className={`mt-3 text-sm leading-8 ${tone.muted}`}>{post.summary || 'A calmer bookmark surface with room for context and grouping.'}</p>
+      <section className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <div className="grid gap-4 border-b border-[rgba(122,95,78,0.12)] pb-6 lg:grid-cols-[1fr_auto] lg:items-end">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] text-[#8b6c5b]">Shelf highlights</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em] text-[#261811]">Recent bookmark surfaces arranged like a working library.</h2>
+          </div>
+          <Link href="/sbm" className="text-sm font-semibold text-[#5b2b3b] hover:opacity-80">See all bookmarks</Link>
+        </div>
+        <div className="mt-8 grid gap-4 lg:grid-cols-[1.1fr_0.9fr]">
+          <div className="grid gap-4">
+            {shelfCollections.slice(0, 2).map((post, index) => (
+              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.8rem] p-6 ${index === 0 ? tone.panel : tone.soft}`}>
+                <p className="text-[11px] font-semibold uppercase tracking-[0.24em] opacity-70">Collection {index + 1}</p>
+                <h3 className="mt-3 text-2xl font-semibold tracking-[-0.04em]">{post.title}</h3>
+                <p className={`mt-3 max-w-2xl text-sm leading-8 ${tone.muted}`}>{post.summary || 'A text-first bookmark card with enough room for context and why-it-matters notes.'}</p>
+              </Link>
+            ))}
+          </div>
+          <div className="grid gap-4">
+            {shelfCollections.slice(2, 4).map((post) => (
+              <Link key={post.id} href={getTaskHref(resolveTaskKey(post.task, 'sbm'), post.slug)} className={`rounded-[1.7rem] p-5 ${tone.soft}`}>
+                <p className="text-[10px] font-semibold uppercase tracking-[0.24em] opacity-65">Reference note</p>
+                <h3 className="mt-2 text-xl font-semibold">{post.title}</h3>
+                <p className={`mt-3 text-sm leading-7 ${tone.muted}`}>{post.summary || 'Useful link, saved cleanly, easy to revisit.'}</p>
               </Link>
             ))}
           </div>
         </div>
+      </section>
 
-        <div className="mt-12 grid gap-6 lg:grid-cols-[1.05fr_0.95fr]">
+      <section className={`${tone.shell}`}>
+        <div className="mx-auto grid max-w-7xl gap-6 px-4 py-12 sm:px-6 lg:grid-cols-[0.92fr_1.08fr] lg:px-8">
           <div className={`rounded-[2rem] p-7 ${tone.panel}`}>
-            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Why this feels different</p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">More like saved boards and reading shelves than a generic post feed.</h2>
-            <p className={`mt-4 max-w-2xl text-sm leading-8 ${tone.muted}`}>The structure is calmer, the cards are less noisy, and the page encourages collecting and returning instead of forcing everything into a fast-scrolling list.</p>
+            <p className="text-xs font-semibold uppercase tracking-[0.24em] opacity-70">Secondary surface</p>
+            <h2 className="mt-3 text-3xl font-semibold tracking-[-0.04em]">Profiles feel like identity notes, not cloned business cards.</h2>
+            <p className={`mt-4 max-w-2xl text-sm leading-8 ${tone.muted}`}>
+              The profile lane uses darker, more portrait-driven cards so it complements bookmarks instead of repeating the same collection module.
+            </p>
           </div>
           <div className="grid gap-4 md:grid-cols-3">
             {people.map((post) => (
-              <Link key={post.id} href={`/profile/${post.slug}`} className={`rounded-[1.8rem] p-5 ${tone.soft}`}>
-                <div className="relative h-32 overflow-hidden rounded-[1.2rem]">
+              <Link key={post.id} href={`/profile/${post.slug}`} className="rounded-[1.8rem] border border-white/12 bg-[linear-gradient(180deg,rgba(13,17,24,0.96),rgba(24,31,42,0.96))] p-5 text-white shadow-[0_26px_80px_rgba(17,22,31,0.28)]">
+                <div className="relative h-40 overflow-hidden rounded-[1.3rem]">
                   <ContentImage src={getPostImage(post)} alt={post.title} fill className="object-cover" />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
                 </div>
-                <h3 className="mt-4 text-lg font-semibold">{post.title}</h3>
-                <p className={`mt-2 text-sm leading-7 ${tone.muted}`}>Curator profile, saved resources, and collection notes.</p>
+                <p className="mt-4 text-[10px] font-semibold uppercase tracking-[0.24em] text-slate-400">Curator profile</p>
+                <h3 className="mt-2 text-lg font-semibold">{post.title}</h3>
+                <p className="mt-2 text-sm leading-7 text-slate-300">{post.summary || 'Identity, taste, and published references gathered in one profile surface.'}</p>
               </Link>
             ))}
           </div>

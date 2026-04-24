@@ -1,10 +1,10 @@
 export const siteIdentity = {
   code: process.env.NEXT_PUBLIC_SITE_CODE || 'xfhogylmks',
   name: process.env.NEXT_PUBLIC_SITE_NAME || 'Sourosa',
-  tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'Social Profile platform',
+  tagline: process.env.NEXT_PUBLIC_SITE_TAGLINE || 'Curated profiles and saved references',
   description:
     process.env.NEXT_PUBLIC_SITE_DESCRIPTION ||
-    'A social profile platform for public identity, creator pages, and community discovery.',
+    'A warm, bookmark-first network for public profiles, saved references, and quieter discovery across every live route.',
   domain: process.env.NEXT_PUBLIC_SITE_DOMAIN || 'sourosa.com',
   url: process.env.NEXT_PUBLIC_SITE_URL || 'https://sourosa.com',
   ogImage: process.env.NEXT_PUBLIC_SITE_OG_IMAGE || '/og-default.png',

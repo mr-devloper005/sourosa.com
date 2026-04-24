@@ -1,15 +1,15 @@
 import type { SiteRecipe } from '@/design/factory/recipe-types'
 
 export const SITE_RECIPE: SiteRecipe = {
-  productFamily: 'visual',
-  themePack: 'visual-portfolio',
+  productFamily: 'curation',
+  themePack: 'curation-library',
   homepageTemplate: 'image-profile-home',
-  navbarTemplate: 'floating-bar',
-  footerTemplate: 'minimal-footer',
-  motionPack: 'studio-stagger',
-  primaryTask: 'profile',
-  enabledTasks: ['profile'],
-  taskTemplates: { profile: 'profile-creator', image: 'image-portfolio' },
+  navbarTemplate: 'editorial-bar',
+  footerTemplate: 'editorial-footer',
+  motionPack: 'editorial-soft',
+  primaryTask: 'sbm',
+  enabledTasks: ['sbm', 'profile'],
+  taskTemplates: { sbm: 'sbm-library', profile: 'profile-creator', article: 'article-journal' },
   manualOverrides: {
     navbar: false,
     footer: false,
