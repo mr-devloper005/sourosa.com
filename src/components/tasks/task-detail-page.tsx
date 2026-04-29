@@ -1,12 +1,16 @@
+"use client";
+
 import { ContentImage } from "@/components/shared/content-image";
 import Link from "next/link";
-import { notFound } from "next/navigation";
-import { MapPin, Globe, Phone, Tag, Mail } from "lucide-react";
+import { notFound, usePathname } from "next/navigation";
+import { useState } from "react";
+import { MapPin, Globe, Phone, Tag, Mail, MessageSquare, Heart, Bookmark, Share2, Check } from "lucide-react";
 import { NavbarShell } from "@/components/shared/navbar-shell";
 import { Footer } from "@/components/shared/footer";
 import { TaskPostCard } from "@/components/shared/task-post-card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { buildPostUrl, fetchTaskPostBySlug, fetchTaskPosts } from "@/lib/task-data";
 import { SITE_CONFIG, getTaskConfig, type TaskKey } from "@/lib/site-config";
 import type { SitePost } from "@/lib/site-connector";
@@ -36,6 +40,13 @@ type PostContent = {
   images?: string[];
   latitude?: number | string;
   longitude?: number | string;
+  companyName?: string;
+  brandName?: string;
+  name?: string;
+  strategy?: string;
+  followingCount?: number;
+  followersCount?: number;
+  watchlistCount?: number;
 };
 
 const isValidImageUrl = (value?: string | null) =>
@@ -248,117 +259,253 @@ export async function TaskDetailPage({ task, slug }: { task: TaskKey; slug: stri
   }
 
   if (isBookmark) {
+    const [copied, setCopied] = useState(false);
+
+    const handleShare = async () => {
+      const url = window.location.href;
+      try {
+        await navigator.clipboard.writeText(url);
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      } catch (err) {
+        console.error("Failed to copy URL:", err);
+      }
+    };
+
     return (
       <div className="min-h-screen bg-background">
         <NavbarShell />
-        <main className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
+        <main className="mx-auto w-full max-w-4xl px-4 pb-16 pt-6 sm:px-6 lg:px-8">
           <SchemaJsonLd data={schemaPayload} />
+
+          {/* Back Link */}
           <Link
             href={taskConfig?.route || "/"}
-            className="mb-6 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
+            className="mb-4 inline-flex items-center text-sm text-muted-foreground hover:text-foreground"
           >
             ← Back to {taskConfig?.label || "posts"}
           </Link>
 
-          <section className="overflow-hidden rounded-[2rem] border border-[rgba(122,95,78,0.12)] bg-[linear-gradient(180deg,rgba(255,251,246,0.94)_0%,rgba(246,238,228,0.9)_100%)] p-6 shadow-[0_22px_72px_rgba(88,56,39,0.09)] sm:p-8">
-            <div className="grid gap-8 lg:grid-cols-[1.12fr_0.88fr]">
-              <div>
-                <div className="flex flex-wrap items-center gap-3 text-sm text-muted-foreground">
-                  <Badge variant="secondary" className="inline-flex items-center gap-1">
-                    <Tag className="h-3.5 w-3.5" />
-                    {category}
-                  </Badge>
-                  {location ? (
-                    <span className="inline-flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {location}
-                    </span>
-                  ) : null}
+          {/* Profile Header Card */}
+          <section className="overflow-hidden rounded-2xl border border-border/60 bg-white shadow-sm">
+            {/* Top Section: Logo, Name, Company, Follow/Share Buttons */}
+            <div className="p-6 sm:p-8">
+              <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:gap-8">
+                {/* Logo */}
+                <div className="flex-shrink-0">
+                  <div className="relative h-24 w-24 overflow-hidden rounded-xl border border-border/70 bg-white shadow-sm sm:h-28 sm:w-28">
+                    {content.logo ? (
+                      <ContentImage
+                        src={content.logo}
+                        alt={post.title}
+                        fill
+                        className="object-contain p-2"
+                        sizes="112px"
+                        intrinsicWidth={112}
+                        intrinsicHeight={112}
+                      />
+                    ) : images[0] ? (
+                      <ContentImage
+                        src={images[0]}
+                        alt={post.title}
+                        fill
+                        className="object-cover"
+                        sizes="112px"
+                        intrinsicWidth={112}
+                        intrinsicHeight={112}
+                      />
+                    ) : (
+                      <div className="flex h-full w-full items-center justify-center text-3xl font-semibold text-muted-foreground">
+                        {post.title.slice(0, 1).toUpperCase()}
+                      </div>
+                    )}
+                  </div>
                 </div>
-                <h1 className="mt-5 max-w-4xl text-4xl font-semibold tracking-[-0.05em] text-foreground sm:text-5xl">
-                  {post.title}
-                </h1>
-                <RichContent html={descriptionHtml} className="mt-5 max-w-3xl text-base leading-8" />
 
-                {postTags.length ? (
-                  <div className="mt-6 flex flex-wrap gap-2">
-                    {postTags.map((tag) => (
-                      <Badge key={tag} variant="outline">
-                        {tag}
-                      </Badge>
-                    ))}
+                {/* Name, Company, Follow/Share Buttons */}
+                <div className="flex-1">
+                  <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                    <div>
+                      <h1 className="text-2xl font-bold text-foreground sm:text-3xl">{post.title}</h1>
+                      <p className="mt-1 text-sm text-muted-foreground">{content.companyName || content.brandName || content.name || "Company Inc"}</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="rounded-full border-border px-4 font-medium hover:bg-muted"
+                        onClick={handleShare}
+                      >
+                        {copied ? (
+                          <>
+                            <Check className="mr-1.5 h-4 w-4" />
+                            Copied
+                          </>
+                        ) : (
+                          <>
+                            <Share2 className="mr-1.5 h-4 w-4" />
+                            Share
+                          </>
+                        )}
+                      </Button>
+                      <Link href="/login">
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          className="rounded-full border-border px-6 font-medium hover:bg-muted"
+                        >
+                          Follow
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+
+                  {/* Description */}
+                  <RichContent html={descriptionHtml} className="mt-4 max-w-2xl text-sm leading-relaxed" />
+                </div>
+              </div>
+            </div>
+
+            {/* Strategy Badge */}
+            <div className="border-t border-border/60 px-6 py-3 sm:px-8">
+              <div className="flex items-center gap-2">
+                <span className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">Strategy:</span>
+                <Badge variant="secondary" className="text-xs font-medium">
+                  {content.strategy || category || "Professional"}
+                </Badge>
+              </div>
+            </div>
+
+            {/* Info Row: Location, Website */}
+            <div className="border-t border-border/60 px-6 py-4 sm:px-8">
+              <div className="flex flex-wrap items-center gap-x-8 gap-y-3 text-sm text-muted-foreground">
+                {location ? (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>{location}</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span>United States</span>
+                  </div>
+                )}
+                {content.website ? (
+                  <div className="flex items-center gap-2">
+                    <Globe className="h-4 w-4" />
+                    <a
+                      href={content.website}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="max-w-[200px] truncate text-foreground hover:underline"
+                    >
+                      {content.website}
+                    </a>
                   </div>
                 ) : null}
               </div>
-
-              <aside className="grid gap-4">
-                <div className="rounded-[1.6rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Collection note</p>
-                  <p className="mt-3 text-sm leading-7 text-muted-foreground">
-                    This bookmark surface stays intentionally lighter and more editorial than listing or article detail pages.
-                  </p>
-                </div>
-                <div className="rounded-[1.6rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-5">
-                  <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Quick actions</p>
-                  <div className="mt-4 flex flex-wrap gap-3">
-                    {content.website ? (
-                      <Button asChild>
-                        <a href={content.website} target="_blank" rel="noreferrer">
-                          Visit link
-                        </a>
-                      </Button>
-                    ) : null}
-                    <Button variant="outline" asChild>
-                      <Link href={`/search?q=${encodeURIComponent(post.title)}`}>Find related</Link>
-                    </Button>
-                  </div>
-                </div>
-                {(content.website || content.email || location) ? (
-                  <div className="rounded-[1.6rem] border border-[rgba(122,95,78,0.12)] bg-white/70 p-5">
-                    <p className="text-xs font-semibold uppercase tracking-[0.24em] text-muted-foreground">Reference details</p>
-                    <div className="mt-4 space-y-3 text-sm text-muted-foreground">
-                      {content.website ? (
-                        <div className="flex items-start gap-2">
-                          <Globe className="mt-0.5 h-4 w-4" />
-                          <a href={content.website} className="break-all text-foreground hover:underline" target="_blank" rel="noreferrer">
-                            {content.website}
-                          </a>
-                        </div>
-                      ) : null}
-                      {content.email ? (
-                        <div className="flex items-start gap-2">
-                          <Mail className="mt-0.5 h-4 w-4" />
-                          <a href={`mailto:${content.email}`} className="break-all text-foreground hover:underline">
-                            {content.email}
-                          </a>
-                        </div>
-                      ) : null}
-                      {location ? (
-                        <div className="flex items-start gap-2">
-                          <MapPin className="mt-0.5 h-4 w-4" />
-                          <span>{location}</span>
-                        </div>
-                      ) : null}
-                    </div>
-                  </div>
-                ) : null}
-              </aside>
             </div>
+
+            {/* Stats Row */}
+            <div className="border-t border-border/60 px-6 py-4 sm:px-8">
+              <div className="flex items-center gap-6 text-sm">
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-foreground">{content.followingCount || 0}</span>
+                  <span className="text-muted-foreground">Following</span>
+                </div>
+                <div className="flex items-center gap-1.5">
+                  <span className="font-semibold text-foreground">{content.followersCount || 0}</span>
+                  <span className="text-muted-foreground">Followers</span>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Tabs Section */}
+          <section className="mt-6">
+            <Tabs defaultValue="posts" className="w-full">
+              <TabsList className="w-full justify-start rounded-none border-b border-border/60 bg-transparent p-0">
+                <TabsTrigger
+                  value="posts"
+                  className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Posts
+                </TabsTrigger>
+                <TabsTrigger
+                  value="replies"
+                  className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <MessageSquare className="mr-2 h-4 w-4" />
+                  Posts & Replies
+                </TabsTrigger>
+                <TabsTrigger
+                  value="liked"
+                  className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <Heart className="mr-2 h-4 w-4" />
+                  Liked
+                </TabsTrigger>
+                <TabsTrigger
+                  value="watchlist"
+                  className="rounded-none border-b-2 border-transparent px-4 py-3 text-sm font-medium data-[state=active]:border-foreground data-[state=active]:bg-transparent data-[state=active]:shadow-none"
+                >
+                  <Bookmark className="mr-2 h-4 w-4" />
+                  {content.watchlistCount || 0} Watchlist
+                </TabsTrigger>
+              </TabsList>
+
+              <TabsContent value="posts" className="mt-6">
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="rounded-full bg-muted p-4">
+                    <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="mt-4 text-muted-foreground">No messages</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="replies" className="mt-6">
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="rounded-full bg-muted p-4">
+                    <MessageSquare className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="mt-4 text-muted-foreground">No posts or replies</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="liked" className="mt-6">
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="rounded-full bg-muted p-4">
+                    <Heart className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="mt-4 text-muted-foreground">No liked posts</p>
+                </div>
+              </TabsContent>
+
+              <TabsContent value="watchlist" className="mt-6">
+                <div className="flex flex-col items-center justify-center py-16 text-center">
+                  <div className="rounded-full bg-muted p-4">
+                    <Bookmark className="h-8 w-8 text-muted-foreground" />
+                  </div>
+                  <p className="mt-4 text-muted-foreground">No items in watchlist</p>
+                </div>
+              </TabsContent>
+            </Tabs>
           </section>
 
           {related.length ? (
             <section className="mt-12">
               <div className="mb-4 flex items-center justify-between">
-                <h2 className="text-xl font-semibold text-foreground">More in {category}</h2>
+                <h2 className="text-lg font-semibold text-foreground">More in {category}</h2>
                 {taskConfig?.route ? (
                   <Link href={taskConfig.route} className="text-sm text-muted-foreground hover:text-foreground">
                     View all
                   </Link>
                 ) : null}
               </div>
-              <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+              <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
                 {related.map((item) => (
-                  <TaskPostCard key={item.id} post={item} href={buildPostUrl(task, item.slug)} taskKey={task} />
+                  <TaskPostCard key={item.id} post={item} href={buildPostUrl(task, item.slug)} taskKey={task} compact />
                 ))}
               </div>
             </section>
