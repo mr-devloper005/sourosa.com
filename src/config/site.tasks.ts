@@ -44,7 +44,7 @@ export const siteTaskDefinitions = [
     label: 'Bookmark Library',
     route: '/sbm',
     description: 'Saved links, collections, and reference shelves.',
-    contentType: 'social',
+    contentType: 'sbm',
     enabled: true,
   },
   {
